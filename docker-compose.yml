@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  cache-manager:
+    container_name: cache-manager
+    build: 
+      context: .
+      dockerfile: dockerfile
+      target: local
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+    env_file:
+      - env/defaults.env
+    ports:
+      - '3000:3000'
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel "warning"
+
+networks:
+  default:
+    name: CACHE_MANAGER_NETWORK
