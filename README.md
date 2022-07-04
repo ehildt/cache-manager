@@ -4,8 +4,8 @@ By default the Cache-Manager starts with the following setup:
 
 ```bash
 PORT=3000
-START_SWAGGER=false
-PRINT_ENV=false
+START_SWAGGER='false'
+PRINT_ENV='false'
 
 CACHE_MANAGER_TTL=300
 CACHE_MANAGER_NAMESPACE_PREFIX=''
@@ -35,9 +35,9 @@ services:
       - PRINT_ENV=true
       - CACHE_MANAGER_TTL=300
       - CACHE_MANAGER_NAMESPACE_PREFIX=''
-      - CACHE_MANAGER_TOKEN_SECRET='super-secret'
+      - CACHE_MANAGER_TOKEN_SECRET=super-secret
       - REDIS_PASS=''
-      - REDIS_HOST='redis'
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_TTL=600
       - REDIS_MAX_RESPONSES=100
@@ -84,3 +84,9 @@ In docker you can map your tls/ssl setup with `-v $(pwd)/ssl:/app/ssl`.
 ## Caching Insights
 
 Every config object is represented by it's serviceId and is stored for 300 seconds by default. To change this behavior simply update the `CACHE_MANAGER_TTL`. Setting it to 0 disables the expiration (ttl) for that particular serviceId. Whenever the config object is altered, the ttl is reset to 300 seconds (fallback) or whatever has been provided in the `CACHE_MANAGER_TTL`. There is a caveat though. Any in-memory solution implements a simple key-value storage. This means there is no such thing as a namespace or context ales custom implemented. The prefix is such a custom implementation of a namespace/context. Let's say your key (serviceId) is test1234, then the prefix will be appended and your serviceId turns into \<prefix>_test1234. If the prefix-serviceId combination is not unique, then all applications which use the same in-memory cache will alienate the config object. A good example would be the config-manager and cache-manager used together. Namely if the envs `CACHE_MANAGER_NAMESPACE_PREFIX` and `CONFIG_MANAGER_NAMESPACE_PREFIX` share the same value. In this case when creating a serviceId using the **cache-manager**, the ttl coming from `CACHE_MANAGER_TTL` is used. However, if you alter this serviceId using the **cache-manager**, then the ttl coming from the `CONFIG_MANAGER_TTL` is used. This is due to the fact that now both managers see the same serviceId and both manipulate the config object. This might be desired or unwanted so keep an eye out on the prefixes.
+
+## Dependencies
+
+The cache-manager depends on the auth-manager since it's the core where all the roles and permissions come to life.
+If you want to know more how to adapt your own services to follow the same roles and permission guidelines, or extend them even,
+then feel free to check out the auth-manager documentation.
